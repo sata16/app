@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Карточка клиента{% endblock %}
+
+{% block content %}
+<h1>Карточка клиента</h1>
+
+<div class="tenant-profile">
+
+  <!-- Форма редактирования данных клиента -->
+  <form method="POST" action="{{ url_for('workspace.client_card', client_id=client.client_id) }}">
+    <input type="hidden" name="action" value="update_client">
+    <div class="form-group">
+      <label for="name">ФИО</label>
+      <input type="text" id="name" name="name" value="{{ client.name }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Телефон</label>
+      <input type="text" id="phone" name="phone" value="{{ client.phone }}">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{ client.email }}">
+    </div>
+
+    <button type="submit" class="btn">Сохранить изменения</button>
+    <a href="{{ url_for('workspace.view') }}" class="btn btn-secondary">Назад</a>
+  </form>
+
+  <hr>
+
+  <!-- Создание бронирования (если маршрут поддерживает create_booking) -->
+  <h3>Создать бронирование (если хотите)</h3>
+  {% if bookings is not none %}
+    <form method="POST" action="{{ url_for('workspace.client_card', client_id=client.client_id) }}">
+      <input type="hidden" name="action" value="create_booking">
+
+      <div class="form-group">
+        <label for="spot_id">ID места (используйте номер spot_id)</label>
+        <input type="number" id="spot_id" name="spot_id" placeholder="ID места" required>
+        <small class="muted">Список доступных мест смотрите в рабочей области</small>
+      </div>
+
+      <div class="form-group">
+        <label for="start_date">Дата начала (YYYY-MM-DD)</label>
+        <input type="date" id="start_date" name="start_date" required>
+      </div>
+
+      <div class="form-group">
+        <label for="end_date">Дата окончания (YYYY-MM-DD)</label>
+        <input type="date" id="end_date" name="end_date" required>
+      </div>
+
+      <div class="form-group">
+        <label for="cost">Стоимость</label>
+        <input type="number" step="0.01" id="cost" name="cost" required>
+      </div>
+
+      <button type="submit" class="btn">Создать бронирование</button>
+    </form>
+  {% else %}
+    <p class="muted">Создание бронирования временно недоступно.</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- Список/история бронирований клиента -->
+  <h3>Бронирования клиента</h3>
+  {% if bookings %}
+    <ul>
+      {% for b in bookings %}
+      <li>
+        ID брони: {{ b.booking_id }} —
+        {% if b.spot %}Место №{{ b.spot.number }} (Парковка: {{ b.spot.parking.address if b.spot.parking else '—' }}){% else %}<em>место удалено</em>{% endif %}
+        — {{ b.start_date.strftime('%d.%m.%Y') }} → {{ b.end_date.strftime('%d.%m.%Y') }}
+        — Статус: {{ b.status }}
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Бронирований нет.</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- История платежей -->
+  <h3>История платежей</h3>
+  {% if payments %}
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Дата платежа</th>
+          <th>Сумма</th>
+          <th>Бронирование / Место</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in payments %}
+        <tr>
+          <td>{{ payment.payment_date.strftime('%d.%m.%Y') if payment.payment_date else '' }}</td>
+          <td>{{ "%.2f"|format(payment.amount) }}</td>
+          <td>
+            {% if payment.booking %}
+              Бронь ID {{ payment.booking.booking_id }}
+              {% if payment.booking.spot %} — Место №{{ payment.booking.spot.number }}{% endif %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Платежей пока нет.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

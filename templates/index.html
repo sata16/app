@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<main class="welcome">
+  <div class="welcome-inner">
+    <div class="welcome-text">
+      <h1>Добро пожаловать</h1>
+      <p>Управление парковками и бронированиями.</p>
+
+      <div class="main-actions">
+        <div class="action-block">
+          <a href="{{ url_for('workspace.view') }}">
+            <div class="action-icon">🗓️</div>
+            <h3>Рабочая область</h3>
+            <p>Шахматка парковочных мест, брони и клиенты</p>
+          </a>
+        </div>
+
+        <div class="action-block">
+          <a href="{{ url_for('reports.view') }}">
+            <div class="action-icon">📊</div>
+            <h3>Отчёты</h3>
+            <p>Финансы, занятость и движения</p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-image">
+            <img src="{{ url_for('static', filename='images/XXXL.webp') }}"
+           alt="Иллюстрация системы парковок" />
+    </div>
+  </div>
+</main>
+{% endblock %}

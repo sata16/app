@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Добавить парковку{% endblock %}
+
+{% block content %}
+<section class="form-section">
+  <h1>Добавить парковку</h1>
+
+  <form method="POST" action="{{ url_for('workspace.add_parking') }}">
+    <div class="form-group">
+      <label for="address">Адрес парковки:</label>
+      <input type="text" id="address" name="address" class="form-control" required>
+    </div>
+
+    <div class="buttons-container">
+      <button type="submit" class="btn btn-primary">Добавить</button>
+      <a href="{{ url_for('workspace.view') }}" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

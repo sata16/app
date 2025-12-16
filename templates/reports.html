@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Отчёты{% endblock %}
+
+{% block content %}
+<h1>Отчёты</h1>
+
+{% set report_type = request.args.get('type', '') %}
+{% set selected_parking = request.args.get('parking_id') %}
+{% set start = request.args.get('start') %}
+{% set end = request.args.get('end') %}
+
+<div class="reports">
+
+  <!-- Навигация -->
+  <nav class="reports-nav">
+    <ul>
+      <li>
+        <a href="{{ url_for('reports.view', type='payments') }}"
+           class="{{ 'active' if report_type == 'payments' else '' }}">
+          💰 Отчёт по платежам
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ url_for('reports.view', type='charges') }}"
+           class="{{ 'active' if report_type == 'charges' else '' }}">
+          📄 Отчёт по начислениям
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ url_for('reports.view', type='finance') }}"
+           class="{{ 'active' if report_type == 'finance' else '' }}">
+          📊 Финансовый отчёт
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Если тип отчёта выбран — показываем фильтр -->
+  {% if report_type %}
+  <form class="report-filter" method="GET" action="{{ url_for('reports.view') }}">
+    <input type="hidden" name="type" value="{{ report_type }}">
+
+    <div class="form-group">
+      <label>Период:</label>
+      <input type="date" name="start" required value="{{ start or '' }}">
+      <input type="date" name="end" required value="{{ end or '' }}">
+    </div>
+
+    <div class="form-group">
+      <label>Адрес парковки:</label>
+      <select name="parking_id">
+        <option value="">Все парковки</option>
+
+        {% for p in parkings %}
+          <option value="{{ p.parking_id }}"
+            {% if selected_parking == p.parking_id|string %}selected{% endif %}>
+            {{ p.address }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button class="btn green">Сформировать отчёт</button>
+  </form>
+  {% endif %}
+
+  <!-- Результаты -->
+  <div class="report-results">
+
+    {% if report_type and start and end and report_data %}
+      
+      <table class="table">
+        <thead>
+          <tr>
+            {% for col in report_data.columns %}
+              <th>{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in report_data.rows %}
+            <tr>
+              {% for cell in row %}
+                <td>{{ cell }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    {% elif report_type %}
+      <p class="muted">Укажите период и нажмите «Сформировать отчёт».</p>
+
+    {% else %}
+      <p class="muted">Выберите тип отчёта, чтобы начать.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

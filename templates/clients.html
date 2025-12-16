@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Арендаторы{% endblock %}
+
+{% block content %}
+
+<h1>Управление арендаторами</h1>
+
+<div class="clients-filter-card">
+  <form method="GET" action="{{ url_for('workspace.clients') }}">
+
+    <input type="text" name="q" class="input"
+           placeholder="Поиск по ФИО или телефону..."
+           value="{{ request.args.get('q','') }}">
+
+    <select name="sort" class="input">
+      <option value="asc"  {% if request.args.get('sort')=='asc' %}selected{% endif %}>Сортировка: А → Я</option>
+      <option value="desc" {% if request.args.get('sort')=='desc' %}selected{% endif %}>Сортировка: Я → А</option>
+    </select>
+
+    <button class="btn-small green" type="submit">🔍 Найти</button>
+  </form>
+</div>
+
+<div class="clients-actions-top">
+  <a href="{{ url_for('workspace.add_client') }}" class="btn-small green">➕ Добавить арендатора</a>
+  <a href="{{ url_for('workspace.view') }}" class="btn-small gray">← Назад</a>
+</div>
+
+<table class="clients-table">
+  <thead>
+    <tr>
+      <th>ФИО</th>
+      <th>Телефон</th>
+      <th>Примечание</th>
+      <th class="text-right">Действия</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for c in clients %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td>{{ c.phone or '—' }}</td>
+      <td>{{ c.notes or '—' }}</td>
+
+      <td class="actions-cell">
+        <div class="actions">
+          <a href="{{ url_for('workspace.edit_client', client_id=c.client_id) }}"
+             class="btn-mini green">✏</a>
+
+          <form method="POST"
+                action="{{ url_for('workspace.delete_client', client_id=c.client_id) }}"
+                onsubmit="return confirm('Удалить арендатора?')">
+            <button type="submit" class="btn-mini red">🗑</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

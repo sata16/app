@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Рабочая область{% endblock %}
+
+{% block content %}
+
+<h1>Рабочая область</h1>
+
+<div class="workspace-container">
+
+  <section class="calendar-table">
+
+    <!-- === Фильтр парковки === -->
+    <form method="GET" action="{{ url_for('workspace.view') }}" class="filter-form">
+      <label for="parking_id">Показать парковку:</label>
+      <select id="parking_id" name="parking_id" onchange="this.form.submit()">
+        <option value="">Все</option>
+        {% for parking in parkings %}
+          <option value="{{ parking.parking_id }}"
+                  {% if parking.parking_id == selected_parking_id %}selected{% endif %}>
+            {{ parking.address }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <div style="margin-top:8px;">
+        <a class="btn"
+           href="{{ url_for('workspace.view', parking_id=selected_parking_id, year_offset=year_offset - 1) }}">
+          ← {{ current_year - 1 }}
+        </a>
+
+        <strong style="margin:0 10px;">{{ current_year }}</strong>
+
+        <a class="btn"
+           href="{{ url_for('workspace.view', parking_id=selected_parking_id, year_offset=year_offset + 1) }}">
+          {{ current_year + 1 }} →
+        </a>
+      </div>
+    </form>
+
+    <!-- Верхние действия -->
+    <div class="top-actions">
+      <a href="{{ url_for('workspace.add_parking') }}" class="btn-small green">➕ Добавить парковку</a>
+      <a href="{{ url_for('workspace.add_spot') }}" class="btn-small green">➕ Добавить место</a>
+      <a href="{{ url_for('workspace.add_client') }}" class="btn-small green">➕ Добавить арендатора</a>
+      <a href="{{ url_for('workspace.clients') }}" class="btn-small red">👤 Управление арендаторами</a>
+    </div>
+
+    <!-- === Таблица шахматки === -->
+    <table class="calendar-grid">
+      <thead>
+        <tr>
+          <th>Место</th>
+          {% for month in months %}
+            <th>{{ month }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for spot in spots %}
+        {% if not selected_parking_id or spot.parking_id == selected_parking_id %}
+          <tr>
+            <td class="place">
+              №{{ spot.number }}
+              <div class="small muted">
+                ({{ spot.parking.address if spot.parking else '—' }})
+              </div>
+            </td>
+
+            {% for month_index in range(1, 13) %}
+              {% set b = spot.bookings_by_month.get(month_index) %}
+
+              <td class="cell
+    {% if b and b.status == 'занято' %}occupied
+    {% elif b and b.status == 'забронировано' %}reserved
+    {% else %}free{% endif %}">
+
+    {% if b %}
+        <!-- Ячейка с бронью -->
+        <div class="cell-top">
+            {% if b.client %}
+                <a href="{{ url_for('workspace.client_card', client_id=b.client.client_id) }}"
+                   class="tenant-link">
+                    {{ b.client.name }}
+                </a>
+            {% else %}
+                <span class="tenant-link red">[нет данных]</span>
+            {% endif %}
+        </div>
+
+        <div class="cell-bottom">
+            {{ "%.0f"|format(b.rent_size or 0) }} ₽
+        </div>
+
+    {% else %}
+        <!-- Свободная ячейка -->
+        <a href="{{ url_for(
+            'workspace.client_card',
+            client_id=0,
+            spot_id=spot.spot_id,
+            prefill_start=date(current_year, month_index, 1).isoformat(),
+            prefill_end=(
+                date(current_year, month_index + 1, 1) - timedelta(days=1)
+            ).isoformat() if month_index < 12 else (
+                date(current_year + 1, 1, 1) - timedelta(days=1)
+            ).isoformat()
+        ) }}" class="cell-link">
+
+            <div class="cell-top">Свободно</div>
+            <div class="cell-bottom muted">Добавить бронь</div>
+        </a>
+    {% endif %}
+</td>
+            {% endfor %}
+          </tr>
+        {% endif %}
+      {% endfor %}
+      </tbody>
+
+    </table>
+
+  </section>
+</div>
+
+{% endblock %}

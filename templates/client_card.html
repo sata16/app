@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Редактировать бронирование{% else %}Создать бронирование{% endif %}{% endblock %}
+
+{% block content %}
+<section class="tenant-profile">
+
+  <h2>
+    {% if is_edit %}
+      Редактировать бронирование
+    {% else %}
+      Создать бронирование
+    {% endif %}
+  </h2>
+
+  <form method="POST" action="{{ url_for('workspace.client_card', client_id=client.client_id if client else 0) }}">
+    <input type="hidden" name="action" value="create_booking">
+
+    <!-- === Парковочное место === -->
+    <div class="form-group">
+      <label for="spot_id">Парковочное место</label>
+      <select id="spot_id" name="spot_id" required>
+        {% for s in spots_list %}
+          <option value="{{ s.spot_id }}"
+            {% if pre_spot_id == s.spot_id %}selected{% endif %}>
+            №{{ s.number }} ({{ s.parking.address if s.parking else '—' }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- === Арендатор === -->
+    <div class="form-group">
+      <label for="existing_client_id">ФИО арендатора</label>
+      <select id="existing_client_id" name="existing_client_id" onchange="fillClientContact(this)">
+        <option value="">— Выберите арендатора —</option>
+
+        {% for c in clients_list %}
+          <option value="{{ c.client_id }}"
+                  data-phone="{{ c.phone or '' }}"
+                  {% if client and c.client_id == client.client_id %}selected{% endif %}>
+              {{ c.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Телефон</label>
+      <input id="phone" name="phone" type="text"
+             value="{{ client.phone if client else '' }}"
+             placeholder="+7..." />
+    </div>
+
+    <!-- === Период + Сумма начисления === -->
+    <div class="form-row">
+      <div class="form-col">
+        <label>Период начисления</label>
+        <div class="pair">
+          <input type="date" id="start_date" name="start_date"
+                 value="{{ pre_start }}" required>
+          <span class="dash">—</span>
+          <input type="date" id="end_date" name="end_date"
+                 value="{{ pre_end }}" required>
+        </div>
+      </div>
+
+      <div class="form-col">
+        <label for="rent_size">Сумма начисления (₽)</label>
+        <input id="rent_size" name="rent_size" type="number" step="0.01"
+               value="{{ pre_rent }}" required>
+      </div>
+    </div>
+
+    <!-- === Оплата === -->
+    <div class="form-row">
+      <div class="form-col">
+        <label for="payment_date">Дата оплаты</label>
+        <input id="payment_date" name="payment_date" type="date"
+               value="{{ pre_payment_date }}">
+      </div>
+
+      <div class="form-col">
+        <label for="payment_amount">Сумма оплаты (₽)</label>
+        <input id="payment_amount" name="payment_amount" type="number"
+               step="0.01" value="{{ pre_payment_amount }}">
+      </div>
+    </div>
+
+    <!-- === Примечание === -->
+    <div class="form-group">
+      <label for="notes">Примечание</label>
+      <textarea id="notes" name="notes" rows="3"
+                placeholder="Дополнительная информация...">{{ pre_notes }}</textarea>
+    </div>
+
+    <!-- === Кнопки === -->
+    <div class="buttons-container">
+      <button type="submit" class="btn">💾 Сохранить</button>
+      <a href="{{ url_for('workspace.view') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+
+  </form>
+</section>
+
+<script>
+function fillClientContact(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const phone = opt.getAttribute('data-phone') || '';
+  document.getElementById('phone').value = phone;
+}
+</script>
+
+{% endblock %}

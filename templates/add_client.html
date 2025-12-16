@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Добавить арендатора{% endblock %}
+
+{% block content %}
+<section class="form-section">
+  <h1>Добавление арендатора</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('workspace.add_client') }}" class="form-card">
+
+    <!-- ФИО -->
+    <div class="form-group">
+      <label for="name">ФИО арендатора</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+
+    <!-- Телефон -->
+    <div class="form-group">
+      <label for="phone">Телефон</label>
+      <input type="text" id="phone" name="phone" placeholder="+7..." required>
+    </div>
+
+    <!-- Примечание -->
+    <div class="form-group">
+      <label for="notes">Примечание</label>
+      <textarea id="notes" name="notes" rows="3"
+                placeholder="Дополнительная информация..."></textarea>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="buttons-container">
+      <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+      <a href="{{ url_for('workspace.view') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Панель управления{% endblock %}
+
+{% block content %}
+<h1>Панель управления</h1>
+
+<div class="dashboard">
+    <h2>Добро пожаловать, {{ current_user.username }}!</h2>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('workspace.view') }}">Рабочая область</a></li>
+            
+            {% if 'reports' in g.blueprints %} 
+                <li><a href="{{ url_for('reports.index') }}">Отчеты</a></li>
+                <li><a href="{{ url_for('reports.generate_report') }}">Отчет по платежам</a></li>
+            {% endif %}           
+            
+            <li><a href="{{ url_for('calendar.index') }}">Календарь</a></li>       
+            
+            {% if current_user.role == 'admin' %}
+                <li><a href="{{ url_for('workspace.rate_settings') }}">Настройки тарифов</a></li>  
+                <li><a href="{{ url_for('admin.dashboard') }}">Панель администратора</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Отчёт по начислениям{% endblock %}
+
+{% block content %}
+<section class="report-section">
+    <h1>Отчёт по начислениям</h1>
+
+    {% if start_date and end_date %}
+    <p><strong>Период:</strong> {{ start_date }} — {{ end_date }}</p>
+    {% endif %}
+
+    {% if accruals %}
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th>Парковка</th>
+                <th>Место</th>
+                <th>Клиент</th>
+                <th>Сумма начисления</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for accrual in accruals %}
+            <tr>
+                <td>{{ accrual.spot.parking.address if accrual.spot and accrual.spot.parking else "—" }}</td>
+                <td>{{ accrual.spot.number if accrual.spot else "—" }}</td>
+                <td>{{ accrual.client.name if accrual.client else "—" }}</td>
+                <td>{{ "%.2f"|format(accrual.cost or 0) }}</td>
+                <td>{{ accrual.status or "—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Общая сумма начислений:</strong> {{ "%.2f"|format(total_accruals) }}</p>
+    {% else %}
+    <p>Нет данных для выбранного периода.</p>
+    {% endif %}
+</section>
+{% endblock %}

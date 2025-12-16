@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Финансовый отчёт{% endblock %}
+
+{% block content %}
+<h1>Финансовый отчёт</h1>
+
+<div class="report">
+
+    <h2>Период: {{ start_date or "—" }} — {{ end_date or "—" }}</h2>
+
+    <div class="report-summary">
+        <p><strong>Начислено:</strong> {{ report_data.total_charged }} ₽</p>
+        <p><strong>Оплачено:</strong> {{ report_data.total_paid }} ₽</p>
+        <p><strong>Остаток:</strong> {{ report_data.total_balance }} ₽</p>
+    </div>
+
+    {% if report_data.rows %}
+    <table class="report-table">
+        <thead>
+            <tr>
+                {% for col in report_data.columns %}
+                    <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in report_data.rows %}
+            <tr>
+                {% for cell in row %}
+                    <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>Нет данных для отображения.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

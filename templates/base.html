@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Система парковки{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  {% if request.path != url_for('index') %}
+  <nav>
+    <a href="{{ url_for('index') }}">Главная</a> |
+    <a href="{{ url_for('about.about') }}">О нас</a> |
+    <a href="{{ url_for('contacts.contacts') }}">Контакты</a> |
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('workspace.view') }}">Рабочая область</a> |
+      <a href="{{ url_for('reports.view') }}">Отчёты</a> |
+      <a href="{{ url_for('auth.logout') }}">Выйти</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}">Войти</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Добавить парковочное место{% endblock %}
+
+{% block content %}
+<section class="form-section">
+  <h1>Добавить парковочное место</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('workspace.add_spot') }}" class="form-card">
+    <div class="form-group">
+      <label for="parking_id">Выберите парковку</label>
+      <select id="parking_id" name="parking_id" class="form-control" required>
+        <option value="" disabled selected>— Выберите адрес —</option>
+        {% for parking in parkings %}
+          <option value="{{ parking.parking_id }}">{{ parking.address }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="number">Номер места</label>
+      <input type="text" id="number" name="number" class="form-control" required placeholder="Например: 12A">
+    </div>
+
+    <div class="buttons-container">
+      <button type="submit" class="btn btn-primary">💾 Добавить</button>
+      <a href="{{ url_for('workspace.view') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

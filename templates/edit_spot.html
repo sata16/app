@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Редактировать парковочное место{% endblock %}
+
+{% block content %}
+<section class="form-section">
+  <h1>Редактирование места №{{ spot.number }}</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('workspace.edit_spot', spot_id=spot.spot_id) }}" class="form-card">
+    <div class="form-group">
+      <label for="number">Номер места</label>
+      <input type="text" id="number" name="number" class="form-control" value="{{ spot.number }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="status">Статус</label>
+      <select id="status" name="status" required>
+        <option value="свободно" {% if spot.status == 'свободно' %}selected{% endif %}>свободно</option>
+        <option value="занято" {% if spot.status == 'занято' %}selected{% endif %}>занято</option>
+        <option value="забронировано" {% if spot.status == 'забронировано' %}selected{% endif %}>забронировано</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="client_id">Арендатор</label>
+      <select id="client_id" name="client_id">
+        <option value="">— Без арендатора —</option>
+        {% for client in clients %}
+          <option value="{{ client.client_id }}"
+            {% if active_booking and active_booking.client and active_booking.client.client_id == client.client_id %}
+              selected
+            {% endif %}>
+            {{ client.name }} ({{ client.phone }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if active_booking and active_booking.client %}
+      <div class="form-group">
+        <p><strong>Текущий арендатор:</strong> {{ active_booking.client.name }} — {{ active_booking.client.phone }}</p>
+        <p><strong>Период:</strong>
+          {{ active_booking.start_date.strftime('%Y-%m-%d') }} → {{ active_booking.end_date.strftime('%Y-%m-%d') }}
+        </p>
+      </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="start_date">Дата начала аренды</label>
+      <input type="date" id="start_date" name="start_date">
+    </div>
+
+    <div class="form-group">
+      <label for="end_date">Дата окончания аренды</label>
+      <input type="date" id="end_date" name="end_date">
+    </div>
+
+    <div class="buttons-container">
+      <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+      <a href="{{ url_for('workspace.view') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

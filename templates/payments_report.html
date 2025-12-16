@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Отчёт по платежам{% endblock %}
+
+{% block content %}
+<h1>Отчёт по платежам</h1>
+
+<div class="report">
+    <h2>Период: {{ start_date or "—" }} — {{ end_date or "—" }}</h2>
+
+    {% if payments %}
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th>Дата платежа</th>
+                <th>Парковка</th>
+                <th>Место</th>
+                <th>Клиент</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.payment_date.strftime('%d.%m.%Y') if payment.payment_date else '—' }}</td>
+                <td>{{ payment.booking.spot.parking.address if payment.booking and payment.booking.spot and payment.booking.spot.parking else '—' }}</td>
+                <td>{{ payment.booking.spot.number if payment.booking and payment.booking.spot else '—' }}</td>
+                <td>{{ payment.booking.client.name if payment.booking and payment.booking.client else '—' }}</td>
+                <td>{{ "%.2f"|format(payment.amount) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Общая сумма платежей:</strong> {{ "%.2f"|format(total_sum) }}</p>
+    {% else %}
+    <p>Нет данных о платежах.</p>
+    {% endif %}
+</div>
+{% endblock %}
